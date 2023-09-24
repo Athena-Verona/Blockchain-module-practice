@@ -6,7 +6,7 @@
 #include <vector>
 
 int main() {
-    std::string inputString = "";
+    std::string inputString = "K";
     std::string binaryString = "";
 
     // Convert the original string to binary representation
@@ -15,49 +15,61 @@ int main() {
         binaryString += binaryChar.to_string();
     }
 
+    int asciiSum = 0;
     std::cout << "Original String: " << inputString << std::endl;
-    //std::cout << "Binary Representation: " << binaryString << std::endl;
+    for (char c : inputString) {
+        asciiSum += static_cast<int>(c); // Add the ASCII value of the character
+    }
+
+    std::cout << "The sum of ASCII values is: " << asciiSum << std::endl;
 
     //add 0 and 1 until it is 256 bit long
-    bool addOne = true;
-    while (binaryString.length() < 256) {
-        if (addOne) {
-            binaryString = "0" + binaryString;
-            addOne = false;
+    //bool addOne = true;
+    //while (binaryString.length() < 256) {
+    //    //if (addOne) {
+    //        binaryString = "0" + binaryString;
+    //    //    addOne = false;
+    //    //}
+    //    //else { binaryString = "1" + binaryString;
+    //    //    addOne = true;
+    //    //}
+    //}
+    if (binaryString.length() < 256) {
+        int n = 256 - binaryString.length();
+        int k = 0.7 * n;
+        int y = 256 - k;
+        for (int i = 0; i < k; i++){
+            binaryString = "1" + binaryString;
         }
-        else { binaryString = "1" + binaryString;
-            addOne = true;
+        for (int i = 0; i < y; i++){
+            binaryString = "0" + binaryString;
         }
     }
-
     //int blockSize = 2; // Number of bits in each block
     int blocksNumber = binaryString.length() / 2;
-
-    //// Divide the binary string into blocks of size 'blockSize'
-    //std::vector<std::string> blocks(blocksNumber);
-    //for (int i = 0; i < blocksNumber; i++) {
-    //    blocks[i] = binaryString.substr(i * 2, 2);
-    //}
-
-    std::vector<std::string> blocks(blocksNumber);
-    for (int i = 0; i < blocksNumber; i++) {
-    blocks[i] = binaryString.substr(i, 1) + binaryString.substr(binaryString.length() - i - 1, 1);
+    while (asciiSum > 1000){
+        asciiSum /= 10;
     }
-    // Create a new binary string by interleaving bits from the front and the end
-    std::string mixedBinaryString = "";
-    while (!blocks.empty()) {
-        mixedBinaryString += blocks.front();
-        mixedBinaryString += blocks.back();
-        blocks.erase(blocks.begin());
-        blocks.pop_back();
+    for (int i= 0;i < (asciiSum/3)+1 ; i++){
+        std::vector<std::string> blocks(blocksNumber);
+        for (int i = 0; i < blocksNumber; i++) {
+            blocks[i] = binaryString.substr(i, 1) + binaryString.substr(binaryString.length() - i - 1, 1);
+        }
+        // Create a new binary string by interleaving bits from the front and the end
+        binaryString = "";
+        while (!blocks.empty()) {
+            binaryString += blocks.front();
+            binaryString += blocks.back();
+            blocks.erase(blocks.begin());
+            blocks.pop_back();
+        }
     }
     // Output the mixed binary string
-    std::cout << "Original Binary String: " << binaryString << std::endl;
-    std::cout << "Mixed Binary String:    " << mixedBinaryString << std::endl;
+    std::cout << "Mixxed Binary String: " << binaryString << std::endl;
 
     std::stringstream hexStream;
-    for (size_t i = 0; i < mixedBinaryString.length(); i += 7){
-        std::string binaryNibble = mixedBinaryString.substr(i, 7);
+    for (size_t i = 0; i < binaryString.length(); i += 7){
+        std::string binaryNibble = binaryString.substr(i, 7);
         int decimalValue = std::bitset<7>(binaryNibble).to_ulong();
         std::cout << decimalValue << " ";
         hexStream << std::hex << decimalValue;
