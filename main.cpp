@@ -4,11 +4,55 @@
 #include <sstream>
 #include <iostream>
 #include <vector>
+#include <stdexcept>
+#include <fstream>
+
+using std::cout;
+using std::string;
+using std::endl;
+using std::cin;
+
 
 int main() {
-    std::string inputString = "K";
+    string read_pavadinimas;
+    char c;
+    cout << "> Ivestis ranka ar is failo? Ranka: 1, failo: 2" << endl;
+    cin >> c;
+    string inputString;
+    if (c=='2') {
+        cout << "> Kurį failą norėtumėte atidaryti?" << endl;
+        cin >> read_pavadinimas;
+        FILE *open_f;
+        open_f=fopen(read_pavadinimas.c_str(),"r");
+        do{ 
+            try{
+                if (open_f==NULL) { 
+                    throw std::runtime_error("> Tokio failo nėra! Įveskite iš naujo.\n");
+                }
+            }
+            catch (const std::runtime_error& e) {
+                cout << e.what();
+                cin >> read_pavadinimas;
+                open_f=fopen(read_pavadinimas.c_str(),"r");
+            }
+        } while (open_f==NULL);
+        std::ifstream inputFile(read_pavadinimas);
+        cout << "> Failo skaitymas vyksta..." << endl;
+        std::stringstream buffer;
+        buffer << inputFile.rdbuf(); // Read the entire file into the stringstream
+        // Now, you can get the contents of the file as a string
+        inputString = buffer.str();
+        // Close the file
+        inputFile.close();
+        //std::ifstream inputFile(read_pavadinimas);
+        //inputString = std::string((std::istreambuf_iterator<char>(inputFile)), std::istreambuf_iterator<char>());
+    }
+    else {
+        cout << "Iveskite reiksme, kuria noretumete hash'inti" << endl;
+        cin >> inputString;
+    }
+    cout << "> Vykdomas hash algoritmas..." << endl;
     std::string binaryString = "";
-
     // Convert the original string to binary representation
     for (char c : inputString) {
         std::bitset<8> binaryChar(c);
@@ -16,24 +60,10 @@ int main() {
     }
 
     int asciiSum = 0;
-    std::cout << "Original String: " << inputString << std::endl;
     for (char c : inputString) {
         asciiSum += static_cast<int>(c); // Add the ASCII value of the character
     }
-
-    std::cout << "The sum of ASCII values is: " << asciiSum << std::endl;
-
     //add 0 and 1 until it is 256 bit long
-    //bool addOne = true;
-    //while (binaryString.length() < 256) {
-    //    //if (addOne) {
-    //        binaryString = "0" + binaryString;
-    //    //    addOne = false;
-    //    //}
-    //    //else { binaryString = "1" + binaryString;
-    //    //    addOne = true;
-    //    //}
-    //}
     if (binaryString.length() < 256) {
         int n = 256 - binaryString.length();
         int k = 0.7 * n;
@@ -64,18 +94,14 @@ int main() {
             blocks.pop_back();
         }
     }
-    // Output the mixed binary string
-    std::cout << "Mixxed Binary String: " << binaryString << std::endl;
-
     std::stringstream hexStream;
     for (size_t i = 0; i < binaryString.length(); i += 7){
         std::string binaryNibble = binaryString.substr(i, 7);
         int decimalValue = std::bitset<7>(binaryNibble).to_ulong();
-        std::cout << decimalValue << " ";
         hexStream << std::hex << decimalValue;
     }
 
-    std::string hexString = hexStream.str();
+    string hexString = hexStream.str();
     if (hexString.length() > 64) {
         hexString = hexString.substr(0, 64);
     }
