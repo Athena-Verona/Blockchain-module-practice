@@ -39,13 +39,9 @@ int main() {
         std::ifstream inputFile(read_pavadinimas);
         cout << "> Failo skaitymas vyksta..." << endl;
         std::stringstream buffer;
-        buffer << inputFile.rdbuf(); // Read the entire file into the stringstream
-        // Now, you can get the contents of the file as a string
+        buffer << inputFile.rdbuf();
         inputString = buffer.str();
-        // Close the file
         inputFile.close();
-        //std::ifstream inputFile(read_pavadinimas);
-        //inputString = std::string((std::istreambuf_iterator<char>(inputFile)), std::istreambuf_iterator<char>());
     }
     else {
         cout << "Iveskite reiksme, kuria noretumete hash'inti" << endl;
@@ -75,7 +71,7 @@ int main() {
             binaryString = "0" + binaryString;
         }
     }
-    //int blockSize = 2; // Number of bits in each block
+    // Number of blocks total (begins from 128)
     int blocksNumber = binaryString.length() / 2;
     while (asciiSum > 1000){
         asciiSum /= 10;
@@ -85,7 +81,6 @@ int main() {
         for (int i = 0; i < blocksNumber; i++) {
             blocks[i] = binaryString.substr(i, 1) + binaryString.substr(binaryString.length() - i - 1, 1);
         }
-        // Create a new binary string by interleaving bits from the front and the end
         binaryString = "";
         while (!blocks.empty()) {
             binaryString += blocks.front();
@@ -100,11 +95,10 @@ int main() {
         int decimalValue = std::bitset<7>(binaryNibble).to_ulong();
         hexStream << std::hex << decimalValue;
     }
-
     string hexString = hexStream.str();
     if (hexString.length() > 64) {
         hexString = hexString.substr(0, 64);
     }
-    std::cout << "Hexadecimal Representation: " << hexString << std::endl;
+    std::cout << "Maisos funkcijos rezultatas: " << hexString << std::endl;
     return 0;
 }
