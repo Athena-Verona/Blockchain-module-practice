@@ -1,6 +1,7 @@
 #include "main.h"
 
 string generateRandomHashKey(int keyLength) {
+  //"random" hash generation for sender and getter public keys
     const string charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
     string hashKey;
     for (int i = 0; i < keyLength; ++i) {
@@ -9,12 +10,8 @@ string generateRandomHashKey(int keyLength) {
     return hashKey;
 }
 
-void gen_map(){
-   int size = 1200;
-  FILE *F;
-  string pav = "users" + std::to_string(size) + ".txt";
-  F=fopen(pav.c_str(),"w");
-
+void gen_user(vector<user>& Users){
+  int size = 1200;
   mt19937 mt(static_cast<long unsigned int>(hrClock::now().time_since_epoch().count()));
   int_distribution dist(100, 121);
   std::uniform_int_distribution<int> balanceDist(100, 1000000); // Range for user balance
@@ -47,16 +44,35 @@ void gen_map(){
   string vardas;
   for (int i=0;i<size;i++) {
     vardas=vardai[dist(mt)];
-    std::string hashKey = generateRandomHashKey(64);
+    string hashKey = generateRandomHashKey(64);
     int balance = balanceDist(mt);
-    fprintf(F, "%-15s%15s%10d\n", vardas.c_str(), hashKey.c_str(), balance);
+
+    Users.push_back(user(vardas, hashKey, balance));
   }
-  fclose(F);
+}
+
+void gen_trans(vector<user>& U, vector<transaction>& T){
+  mt19937 mt(static_cast<long unsigned int>(hrClock::now().time_since_epoch().count()));
+  std::uniform_int_distribution<int> usersDist(0, 1200);
+
+  for (int i=0;i<10000;i++){
+    int sender = usersDist(mt);
+    int getter = usersDist(mt);
+    while (sender == getter) {
+      getter = usersDist(mt);
+    }
+
+    int balance = usersDist(mt);
+    string public1 = U[sender].get_public_key();
+    string public2 = U[getter].get_public_key();
+
+    T.push_back(transaction(balance, public1, public2));
+  }
 }
 std::ostream& operator<<(std::ostream& out, const transaction& v){
     out << "Transaction ID: "<< v.ID <<endl<<
     "Sender public key: " << v.sender_key <<endl<<
     "Getter public key: " << v.getter_key <<endl<<
-    "Amount spent:" << v.amount << endl;
+    "Amount spent: " << v.amount << endl;
     return out;
 }
