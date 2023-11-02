@@ -30,6 +30,9 @@ using std::mt19937;
 using hrClock = std::chrono::high_resolution_clock; 
 typedef std::uniform_int_distribution<int>  int_distribution;
 
+void processBlock(const string&, int, int, string&);
+string hash(string);
+
 class user{
     private:
     int balance;
@@ -44,14 +47,15 @@ class user{
 
 class transaction{
     private: 
-    int ID, amount;
-    string sender_key, getter_key;
+    int amount;
+    string sender_key, getter_key, ID;
     public:
-    transaction() : ID(0), amount(0), sender_key("none"), getter_key("none") {}
+    transaction() : ID(""), amount(0), sender_key("none"), getter_key("none") {}
     transaction(int amount, string pub1, string pub2) : amount(amount), sender_key(pub1), getter_key(pub2) {
-        //hash is created:)
+        string input = std::to_string(amount) + pub1 + pub2;
+        ID = hash(input);
     }
-    inline int get_ID() const { return ID; }
+    inline string get_ID() const { return ID; }
     inline string get_sender() const { return sender_key; }
     inline string get_getter() const { return getter_key; }
     inline int get_amount() const { return amount; }
@@ -68,26 +72,44 @@ class block {
     string prev_block;
     string merkle;
     string difficultyTarget;
+    string header;
     public:
-    block() {
-    version = "0100000";
-    timestamp = time(nullptr);
-    difficultyTarget = "0000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF";
+    block(string previous) {
+        prev_block = previous;
+        merkle = "";
+        version = "0100000";
+        nonce = 0;
+        timestamp = time(nullptr);
+        difficultyTarget = "0000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF";
+        headerHash();
+    }
+    block(string previous, string target) {
+        prev_block = previous;
+        merkle = "";
+        version = "0100000";
+        timestamp = time(nullptr);
+        difficultyTarget = target;
+        headerHash();
     }
     void headerHash(){
         string input = version + prev_block + merkle + difficultyTarget + std::to_string(timestamp);
-        hash(input);
+        header = hash(input);
+    }
+    void add_transaction(transaction T){
+        TX.push_back(T);
+        string transaction_id = T.get_ID();
+        merkle = merkle + hash(transaction_id);
     }
     inline string get_time() const { return std::to_string(timestamp); }
     inline string get_version() const { return version; }
     inline string get_previous() const { return prev_block; }
     inline string get_merkle_hash() const { return merkle; }
-    inline int get_amount() const { return amount; }
-    inline int get_amount() const { return amount; }
+    inline string get_hash() const { return header; }
+    inline long int get_nonce() const { return nonce; }
+    friend std::ostream& operator<<(std::ostream& out, const block& v);
     ~block() {}
 };
+
 string generateRandomHashKey(int);
 void gen_user(vector<user>&);
 void gen_trans(vector<user>&, vector<transaction>&);
-void processBlock(const string&, int, int, string&);
-void hash(string);

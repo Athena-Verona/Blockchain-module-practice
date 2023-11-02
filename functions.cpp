@@ -76,6 +76,16 @@ std::ostream& operator<<(std::ostream& out, const transaction& v){
     "Amount spent: " << v.amount << endl;
     return out;
 }
+std::ostream& operator<<(std::ostream& out, const block& v){
+    out << "Prev Block: " << v.prev_block << endl<<
+    "Version: " << v.version << endl <<
+    "Timestamp: " << std::to_string(v.timestamp) << endl <<
+    "Nonce: " << v.nonce << endl <<
+    "Merkle hash: " << v.merkle << endl <<
+    "Target: " << v.difficultyTarget << endl <<
+    "Hash: " << v.header<< endl;
+    return out;
+    }
 void processBlock(const string &block, int unicodeValue, int bitCount, string &output)
 {
     vector<string> subblocks;
@@ -117,7 +127,7 @@ void processBlock(const string &block, int unicodeValue, int bitCount, string &o
         }
     }
 }
-void hash(string input){
+string hash(string input){
         int unicodeValue = 0;
         int bitCount1 = input.size() * 8;
         int bitCount = input.size();
@@ -156,6 +166,6 @@ void hash(string input){
 
             processBlock(block, unicodeValue, bitCount, output);
         }
-        cout << "Rezultatas (hexadecimal): " << output << endl;
         blocks.clear();
+        return output;
     }
