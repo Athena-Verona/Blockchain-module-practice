@@ -62,21 +62,32 @@ class transaction{
 class block {
     private: 
     vector<transaction> TX;
-    public:
-    int version = 1;
+    string version;
     long int nonce;
     time_t timestamp;
     string prev_block;
     string merkle;
     string difficultyTarget;
-
+    public:
     block() {
-    auto now = std::chrono::system_clock::now();
-    timestamp = std::chrono::system_clock::to_time_t(now);
-    //std::cout << "finished computation at " << std::ctime(&end_time)
+    version = "0100000";
+    timestamp = time(nullptr);
+    difficultyTarget = "0000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF";
     }
+    void headerHash(){
+        string input = version + prev_block + merkle + difficultyTarget + std::to_string(timestamp);
+        hash(input);
+    }
+    inline string get_time() const { return std::to_string(timestamp); }
+    inline string get_version() const { return version; }
+    inline string get_previous() const { return prev_block; }
+    inline string get_merkle_hash() const { return merkle; }
+    inline int get_amount() const { return amount; }
+    inline int get_amount() const { return amount; }
     ~block() {}
 };
 string generateRandomHashKey(int);
 void gen_user(vector<user>&);
 void gen_trans(vector<user>&, vector<transaction>&);
+void processBlock(const string&, int, int, string&);
+void hash(string);
