@@ -62,8 +62,9 @@ void gen_trans(vector<user>& U, vector<transaction>& T){
       getter = usersDist(mt);
     }
     int balance = usersDist(mt);
-    if (U[sender].get_balance() < balance) {
-        break;
+
+    while (U[sender].get_balance() < balance) {
+        balance = usersDist(mt);
     }
     user u1 = U[sender];
     user u2 = U[getter];
@@ -88,7 +89,7 @@ std::ostream& operator<<(std::ostream& out, const block& v){
     "Nonce: " << v.nonce << endl <<
     "Merkle hash: " << v.merkle << endl <<
     "Target: " << v.difficultyTarget << endl <<
-    "Hash: " << v.header<< endl;
+    "Hash: " << v.header<< endl << endl;
     return out;
 }
 

@@ -58,6 +58,51 @@ class transaction{
         string input = std::to_string(amount) + pub1 + pub2;
         ID = hash(input);
     }
+    // Copy constructor
+    transaction(const transaction& other)
+        : amount(other.amount), u1(other.u1), u2(other.u2),
+          sender_key(other.sender_key), getter_key(other.getter_key), ID(other.ID) {}
+
+    // Move constructor
+    transaction(transaction&& other) noexcept
+        : amount(other.amount), u1(std::move(other.u1)), u2(std::move(other.u2)),
+          sender_key(std::move(other.sender_key)), getter_key(std::move(other.getter_key)), ID(std::move(other.ID)) {
+        // Set the source object to a valid but unspecified state
+        other.amount = 0;
+        other.sender_key = "none";
+        other.getter_key = "none";
+        other.ID = "";
+    }
+    // Copy assignment operator
+    transaction& operator=(const transaction& other) {
+        if (this != &other) {
+            amount = other.amount;
+            u1 = other.u1;
+            u2 = other.u2;
+            sender_key = other.sender_key;
+            getter_key = other.getter_key;
+            ID = other.ID;
+        }
+        return *this;
+    }
+    // Move assignment operator
+    transaction& operator=(transaction&& other) noexcept {
+        if (this != &other) {
+            amount = other.amount;
+            u1 = std::move(other.u1);
+            u2 = std::move(other.u2);
+            sender_key = std::move(other.sender_key);
+            getter_key = std::move(other.getter_key);
+            ID = std::move(other.ID);
+
+            // Set the source object to a valid but unspecified state
+            other.amount = 0;
+            other.sender_key = "none";
+            other.getter_key = "none";
+            other.ID = "";
+        }
+        return *this;
+    }
     inline string get_ID() const { return ID; }
     inline string get_sender() const { return sender_key; }
     inline string get_getter() const { return getter_key; }
@@ -87,7 +132,7 @@ class block {
         version = "0100000";
         nonce = 0;
         timestamp = time(nullptr);
-        difficultyTarget = "00FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF";
+        difficultyTarget = "0000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF";
         headerHash();
     }
     block(string previous, string target) {
@@ -116,6 +161,7 @@ class block {
     inline long int get_nonce() const { return nonce; }
     void set_merkle() { merkle = hash(merkle); }
     void add_nonce() { nonce=nonce+1; }
+    
     friend std::ostream& operator<<(std::ostream& out, const block& v);
     ~block() {}
 };
