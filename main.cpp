@@ -23,6 +23,7 @@ int main() {
         transaction trans = Transactions.back();
         Transactions.pop_back();
         Block.add_transaction(trans);
+        trans.update_balances();
         Block.set_merkle();
       }
       T = Block.get_target();
@@ -33,7 +34,6 @@ int main() {
         Block.headerHash();
         H = Block.get_hash();
       }
-      
       cout << Block << endl;
       Blockchain.push_back(Block);
       previous_block = Block.get_hash();

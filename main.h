@@ -43,16 +43,18 @@ class user{
     user(string vardas, string key, int balance) : balance{balance}, public_key{key}, name{vardas} {}
     inline string get_public_key() const { return public_key; }
     inline int get_balance() const { return balance; }
+    void update_balance(int money) { balance += money; }
     ~user() {}
 };
 
 class transaction{
     private: 
     int amount;
+    user u1, u2;
     string sender_key, getter_key, ID;
     public:
     transaction() : ID(""), amount(0), sender_key("none"), getter_key("none") {}
-    transaction(int amount, string pub1, string pub2) : amount(amount), sender_key(pub1), getter_key(pub2) {
+    transaction(int amount, string pub1, string pub2, user sender, user getter) : u1(sender), u2(getter), amount(amount), sender_key(pub1), getter_key(pub2) {
         string input = std::to_string(amount) + pub1 + pub2;
         ID = hash(input);
     }
@@ -60,6 +62,10 @@ class transaction{
     inline string get_sender() const { return sender_key; }
     inline string get_getter() const { return getter_key; }
     inline int get_amount() const { return amount; }
+    void update_balances() {
+        u2.update_balance(amount);
+        u1.update_balance(-1*amount);
+    }
     friend std::ostream& operator<<(std::ostream& out, const transaction& v);
     ~transaction() {}
 };

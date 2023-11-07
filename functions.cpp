@@ -40,7 +40,7 @@ void gen_user(vector<user>& Users){
   vardai[120]="Raspolas";
   vardai[121]="Misgle";
 
-  cout<<"> Vardų ir pavardžių generavimas vyksta..."<<endl;
+  cout<<"> Vartotojų generavimas vyksta..."<<endl;
   string vardas;
   for (int i=0;i<size;i++) {
     vardas=vardai[dist(mt)];
@@ -54,21 +54,26 @@ void gen_user(vector<user>& Users){
 void gen_trans(vector<user>& U, vector<transaction>& T){
   mt19937 mt(static_cast<long unsigned int>(hrClock::now().time_since_epoch().count()));
   std::uniform_int_distribution<int> usersDist(0, 1200);
-
+    cout << "> Transakcijų generavimas vyksta..." << endl;
   for (int i=0;i<10000;i++){
     int sender = usersDist(mt);
     int getter = usersDist(mt);
     while (sender == getter) {
       getter = usersDist(mt);
     }
-
     int balance = usersDist(mt);
+    if (U[sender].get_balance() < balance) {
+        break;
+    }
+    user u1 = U[sender];
+    user u2 = U[getter];
     string public1 = U[sender].get_public_key();
     string public2 = U[getter].get_public_key();
 
-    T.push_back(transaction(balance, public1, public2));
+    T.push_back(transaction(balance, public1, public2, u1, u2));
   }
 }
+
 std::ostream& operator<<(std::ostream& out, const transaction& v){
     out << "Transaction ID: "<< v.ID <<endl<<
     "Sender public key: " << v.sender_key <<endl<<
