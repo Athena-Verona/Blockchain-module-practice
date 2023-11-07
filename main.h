@@ -7,8 +7,10 @@
 #include <random>
 #include <chrono>
 #include <map>
+#include <algorithm>
 #include <sstream>
 #include <ctime>
+#include <functional>
 
 using std::time;
 using std::stof;
@@ -30,8 +32,7 @@ using std::mt19937;
 using hrClock = std::chrono::high_resolution_clock; 
 typedef std::uniform_int_distribution<int>  int_distribution;
 
-void processBlock(const string&, int, int, string&);
-string hash(string);
+string hash(string&);
 
 class user{
     private:
@@ -80,19 +81,19 @@ class block {
         version = "0100000";
         nonce = 0;
         timestamp = time(nullptr);
-        difficultyTarget = "0000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF";
+        difficultyTarget = "00FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF";
         headerHash();
     }
     block(string previous, string target) {
         prev_block = previous;
         merkle = "";
-        version = "0100000";
+        version = "0100";
         timestamp = time(nullptr);
         difficultyTarget = target;
         headerHash();
-    }
+    } 
     void headerHash(){
-        string input = version + prev_block + merkle + difficultyTarget + std::to_string(timestamp);
+        string input = std::to_string(nonce) + version + prev_block + merkle + difficultyTarget + std::to_string(timestamp);
         header = hash(input);
     }
     void add_transaction(transaction T){
@@ -105,7 +106,10 @@ class block {
     inline string get_previous() const { return prev_block; }
     inline string get_merkle_hash() const { return merkle; }
     inline string get_hash() const { return header; }
+    inline string get_target() const { return difficultyTarget; }
     inline long int get_nonce() const { return nonce; }
+    void set_merkle() { merkle = hash(merkle); }
+    void add_nonce() { nonce=nonce+1; }
     friend std::ostream& operator<<(std::ostream& out, const block& v);
     ~block() {}
 };

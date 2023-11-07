@@ -85,87 +85,39 @@ std::ostream& operator<<(std::ostream& out, const block& v){
     "Target: " << v.difficultyTarget << endl <<
     "Hash: " << v.header<< endl;
     return out;
-    }
-void processBlock(const string &block, int unicodeValue, int bitCount, string &output)
-{
-    vector<string> subblocks;
-    output.clear();
-
-    size_t blockSize = (block.size() == 256) ? 64 : 256;
-    for (size_t i = 0; i < block.size(); i += blockSize)
-    {
-        string subblock = block.substr(i, blockSize);
-        subblocks.push_back(subblock);
-    }
-
-    for (const string &subblock : subblocks)
-    {
-        string shiftedSubblock;
-        int value = (unicodeValue / 13 + bitCount) % 5;
-        for (size_t i = 0; i < subblock.size(); i += 18)
-        {
-            string subblockPart = subblock.substr(i, 18);
-            int shiftAmount = i % 8 + value;
-            string shiftedPart = subblockPart.substr(shiftAmount) + subblockPart.substr(0, shiftAmount);
-            shiftedSubblock += shiftedPart;
-        }
-
-        vector<string> nibbles;
-        // 64bit sukarpymas į 16x4bit
-        for (size_t i = 0; i < shiftedSubblock.size(); i += 4)
-        {
-            string nibble = shiftedSubblock.substr(i, 4);
-            nibbles.push_back(nibble);
-        }
-        for (const string &nibble : nibbles)
-        {
-            std::bitset<8> bits(nibble);
-            std::stringstream stream;
-            stream << std::hex << bits.to_ulong();
-            string hexNibble = stream.str();
-            output += hexNibble;
-        }
-    }
 }
-string hash(string input){
-        int unicodeValue = 0;
-        int bitCount1 = input.size() * 8;
-        int bitCount = input.size();
 
-        for (int i = 0; i < input.size(); i++){
-            if(i == input.size() / 2)
-                unicodeValue += static_cast<int>(input[i]) * 17;
+string hash(string &input) {
+    const int hash_size=8;
+    uint64_t length = input.length() * hash_size;
+    input += char((length >> 56) & 0xFF);
+    input += char((length >> 48) & 0xFF);
+    input += char((length >> 40) & 0xFF);
+    input += char((length >> 32) & 0xFF);
+    input += char((length >> 24) & 0xFF);
+    input += char((length >> 16) & 0xFF);
+    input += char((length >> 8) & 0xFF);
+    input += char(length & 0xFF);
+ 
+    int  code_local=46886,var=7;
+    int secret_rand;
+    uint32_t hash[hash_size]={0};
+    for(char c:input)
+    {
+        for(int i=0;i<hash_size;i++)
+        {
+            secret_rand=(code_local/var)-(var%10);
 
-            unicodeValue += static_cast<int>(input[i]);
+            hash[i]=(hash[i]^c)+secret_rand*(i+1);
+            hash[i] ^= (hash[i] << 15) | (hash[i] >> 21);
+            hash[i] = (hash[i] + 0x85ebca6b) ^ 0xc2b2ae35;
+            var++;
         }
-        int targetBitCount = (bitCount1 < 256) ? 256 : ((bitCount1 / 256) + 1) * 256;
-        string binaryInput;
-        for (char c : input)
-        {
-            std::bitset<8> binaryChar(c);
-            binaryInput += binaryChar.to_string();
-        }
-        int number = bitCount;
-        while (binaryInput.size() < targetBitCount)
-        {
-            std::bitset<8> binary(number);
-            binaryInput += binary.to_string();
-            number += bitCount + static_cast<int>(input[0]);
-        }
-        vector<string> blocks;
-        for (size_t i = 0; i < input.size(); i += 256)
-        {
-            string block = binaryInput.substr(i, 256);
-            blocks.push_back(block);
-        }
-
-        string output;
-        for (const string &block : blocks)
-        {
-            int blockBitCount = block.size();
-
-            processBlock(block, unicodeValue, bitCount, output);
-        }
-        blocks.clear();
-        return output;
     }
+    std::stringstream ss;
+    for(int i =0;i<hash_size;i++)
+    {
+        ss<<std::hex<<std::setw(8)<<std::setfill('0')<<hash[i];
+    }
+    return ss.str();
+}
