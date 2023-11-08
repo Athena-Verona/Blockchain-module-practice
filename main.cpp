@@ -10,6 +10,7 @@ int main() {
     //before! create a genesis block
     block Genesis("");
     Blockchain.push_back(Genesis);
+    
     string previous_block = Genesis.get_hash();
     string T;
 
@@ -25,13 +26,14 @@ int main() {
       std::shuffle(Transactions.begin(), Transactions.end(), mt);
       //CREATE A COPY OF TRANSACTIONS
       std::vector<transaction> CopyTrans = Transactions;
+
       //try candidates
       while (true){
         transaction trans;
         bool blockGood = true;
         std::shuffle(CopyTrans.begin(), CopyTrans.end(), mt);
 
-        for (int i=0;i<100;i++){
+        for (int i=0;i<128;i++){
           //HERE I WOULD WORK WITH THE COPY OF POOL
           trans = CopyTrans.back();
           CopyTrans.pop_back();

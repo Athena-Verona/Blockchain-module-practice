@@ -54,7 +54,9 @@ void gen_user(vector<user>& Users){
 void gen_trans(vector<user>& U, vector<transaction>& T){
   mt19937 mt(static_cast<long unsigned int>(hrClock::now().time_since_epoch().count()));
   std::uniform_int_distribution<int> usersDist(0, 1200);
-    cout << "> Transakcijų generavimas vyksta..." << endl;
+
+  cout << "> Transakcijų generavimas vyksta..." << endl;
+  
   for (int i=0;i<10000;i++){
     int sender = usersDist(mt);
     int getter = usersDist(mt);

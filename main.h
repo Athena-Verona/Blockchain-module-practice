@@ -115,6 +115,12 @@ class transaction{
     ~transaction() {}
 };
 
+struct HashPointer{
+    HashPointer* point;
+    transaction* point_t;
+    string hash;
+};
+
 class block {
     private: 
     vector<transaction> TX;
@@ -159,7 +165,48 @@ class block {
     inline string get_hash() const { return header; }
     inline string get_target() const { return difficultyTarget; }
     inline long int get_nonce() const { return nonce; }
-    void set_merkle() { merkle = hash(merkle); }
+    void set_merkle() {
+        vector<std::pair<HashPointer, HashPointer>> hashPointerPairs;
+
+        int size = TX.size();
+
+        for (int i=0;i<size-1;i++) {
+            HashPointer hp1;
+            HashPointer hp2;
+
+            hp1.point_t = &TX[i];
+            hp2.point_t = &TX[i + 1];
+
+            hp1.hash = TX[i].get_ID();
+            hp2.hash = TX[i + 1].get_ID();
+
+            // Create a pair of HashPointers and associate them with the transactions
+            hashPointerPairs.emplace_back(hp1, hp2);
+        }
+        int j = size/2;
+
+        //For each pair of hashpointers, create 
+        while (j>1) {
+            vector<std::pair<HashPointer, HashPointer>> hashPP2;
+            for (int i=0;i<j;i++){
+                HashPointer hp1;
+                HashPointer hp2;
+
+                hp1.point = &hashPointerPairs[i].first;
+                hp2.point = &hashPointerPairs[i+1].first;
+                
+                hp1.hash = hash(hashPointerPairs[i].first.hash);
+                hp2.hash = hash(hashPointerPairs[i+1].first.hash);
+
+                hashPP2.emplace_back(hp1, hp2);
+            }
+            hashPointerPairs = hashPP2;
+            j/=2;
+        }
+        HashPointer root = hashPointerPairs[0].first;
+        root.hash = hash(root.hash);
+        merkle = root.hash;
+    }
     void add_nonce() { nonce=nonce+1; }
     
     friend std::ostream& operator<<(std::ostream& out, const block& v);
