@@ -1,5 +1,5 @@
-# Blockchain-module-practice
-Vilnius University study module practice files
+# Merkle hash tree
+A blockchain implementation of a merkle tree using C++ for blockchain course at university. Simulates how users can create transactions which are hashed and stored in a block and in a merkle tree. Users, blocks, transactions are written as classes.
 # Antra versija
 ### Antros versijos pridėtinės funkcijos:
 
